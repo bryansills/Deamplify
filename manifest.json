@@ -11,8 +11,9 @@
     "default_icon": "icons/deamplify.svg",
     "default_title": "Deamplify"
   },
-  "background": {
-    "scripts": ["deamplify.js"]
-  },
+  "content_scripts": [{
+    "matches": ["<all_urls>"],
+    "js": ["deamplify.js"]
+  }],
   "permissions": ["alarms", "tabs"]
 }
