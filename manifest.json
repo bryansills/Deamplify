@@ -7,10 +7,12 @@
     "48": "icons/deamplify.svg",
     "96": "icons/deamplify.svg"
   },
-  "content_scripts": [
-    {
-      "matches": ["*://*.mozilla.org/*"],
-      "js": ["borderify.js"]
-    }
-  ]
+  "page_action": {
+    "default_icon": "icons/deamplify.svg",
+    "default_title": "Deamplify"
+  },
+  "background": {
+    "scripts": ["deamplify.js"]
+  },
+  "permissions": ["alarms", "tabs"]
 }
