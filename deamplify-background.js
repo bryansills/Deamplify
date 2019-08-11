@@ -1,68 +1,52 @@
-var gettingActiveTab = browser.tabs.query({active: true, currentWindow: true});
-// gettingActiveTab.then((tabs) => {
-//   restartAlarm(tabs[0].id);
-// });
+var getActiveTab = function() {
+  return browser.tabs
+    .query({active: true, currentWindow: true})
+    .then((tabs) => tabs[0]);
+}
 
-var canonicalUrls = {}
-function onNewCanonicalUrl(message) {
-  console.log({message});
-};
-browser.runtime.onMessage.addListener(onNewCanonicalUrl)
+// if there is a canonical URL mapping, show the page action
+// otherwise hide it
+function setPageActionState(tab) {
+  var canonicalUrl = canonicalUrlMapping[tab.url]
 
-// /*
-// Restart alarm for the currently active tab, whenever the user navigates.
-// */
-// browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
-//   if (!changeInfo.url) {
-//     return;
-//   }
-//   var gettingActiveTab = browser.tabs.query({active: true, currentWindow: true});
-//   console.log({"t": "onUpdated",tabId, changeInfo, tab});
-//   gettingActiveTab.then((tabs) => {
-//     if (tabId == tabs[0].id) {
-//       restartAlarm(tabId);
-//       setDeamplifyState(tabId);
-//     }
-//   });
-// });
+  if (!!canonicalUrl) {
+    browser.pageAction.show(tab.id);
+  } else {
+    browser.pageAction.hide(tab.id);
+  }
+}
 
-// /*
-// Restart alarm for the currently active tab, whenever a new tab becomes active.
-// */
-// browser.tabs.onActivated.addListener((activeInfo) => {
-//   restartAlarm(activeInfo.tabId);
-//   setDeamplifyState(activeInfo.tabId);
-//   console.log({"t": "onActivated", activeInfo});
-// });
+var canonicalUrlMapping = {}
+browser.runtime.onMessage.addListener(function(message) {
+  canonicalUrlMapping[message.currentUrl] = message.canonicalUrl;
+});
 
-// /*
-// restartAlarm: clear all alarms,
-// then set a new alarm for the given tab.
-// */
-// function restartAlarm(tabId) {
-//   browser.pageAction.hide(tabId);
-//   browser.alarms.clearAll();
-//   var gettingTab = browser.tabs.get(tabId);
-//   gettingTab.then((tab) => {
-//     if (tab.url != CATGIFS) {
-//       browser.alarms.create("", {delayInMinutes: DELAY});
-//     }
-//   });
-// }
+// Set page action state for the currently active tab, whenever the user navigates.
+browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (!changeInfo.url) {
+    return;
+  }
 
-// /*
-// On alarm, show the page action.
-// */
-// browser.alarms.onAlarm.addListener((alarm) => {
-//   var gettingActiveTab = browser.tabs.query({active: true, currentWindow: true});
-//   gettingActiveTab.then((tabs) => {
-//     browser.pageAction.show(tabs[0].id);
-//   });
-// });
+  getActiveTab().then((tab) => {
+    if (tabId == tab.id) {
+      setPageActionState(tab);
+    }
+  });
+});
 
+// Set page action state for the currently active tab, whenever a new tab becomes active.
+browser.tabs.onActivated.addListener((activeInfo) => {
+  getActiveTab().then(tab => {
+    if (activeInfo.tabId === tab.id) {
+      setPageActionState(tab);
+    }
+  });
+});
+
+// Navigate when the page action is clicked
 browser.pageAction.onClicked.addListener(() => {
-  gettingActiveTab.then((tab) => {
-    var canonicalUrl = canonicalUrls[tab.url];
+  getActiveTab().then((tab) => {
+    var canonicalUrl = canonicalUrlMapping[tab.url];
     canonicalUrl && browser.tabs.update({url: canonicalUrl});
   })
 });
