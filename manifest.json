@@ -2,7 +2,7 @@
   "manifest_version": 2,
   "name": "Deamplify",
   "version": "0.1",
-  "description": "Adds a red border to all webpages matching mozilla.org.",
+  "description": "A simple Firefox addon to help users go to the non-shitty, non-Google AMP versions of websites",
   "icons": {
     "48": "icons/deamplify.svg",
     "96": "icons/deamplify.svg"
@@ -18,5 +18,5 @@
   "background": {
     "scripts": ["deamplify-background.js"]
   },
-  "permissions": ["alarms", "tabs"]
+  "permissions": ["tabs"]
 }
