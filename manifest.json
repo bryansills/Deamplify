@@ -15,5 +15,8 @@
     "matches": ["<all_urls>"],
     "js": ["deamplify.js"]
   }],
+  "background": {
+    "scripts": ["deamplify-background.js"]
+  },
   "permissions": ["alarms", "tabs"]
 }
